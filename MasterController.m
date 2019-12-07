@@ -35,13 +35,13 @@ classdef MasterController < handle
             out = obj.agvCount;
         end
         
-        function assignPath(obj, agvRobot, task)
-            [path.nodes, path.length] = shortestpath(MapG, task.startingNode, task.endingNode);
+        function path = assignPath(obj, agvRobot, task)
+            [path.nodes, path.length] = shortestpath(obj.mapGraph, task.startingNode, task.endingNode);
             path.nodesPairs = [path.nodes(1 : length(path.nodes)-1 )', path.nodes(2 : length(path.nodes) )'];
-            path.edges = findedge(MapG, path.nodesPairs(:,1), path.nodesPairs(:,2));
+            path.edges = findedge(obj.mapGraph, path.nodesPairs(:,1), path.nodesPairs(:,2));
             
             % Modify path edges weight by +1
-            obj.mapGraph.Weight(path.edges) = MapG.Edges.Weight(path.edges) + 1;
+            obj.mapGraph.Edges.Weight(path.edges) = obj.mapGraph.Edges.Weight(path.edges) + 1;
                         
             agvRobot.path = path;
         end
@@ -51,6 +51,13 @@ classdef MasterController < handle
             LWidths = 5*obj.mapGraph.Edges.Weight / max(obj.mapGraph.Edges.Weight);
             plt = plot(obj.mapGraph,'EdgeLabel',obj.mapGraph.Edges.Weight,'LineWidth',LWidths); 
             hold on; grid minor;
+        end
+        
+        function highlightPath(obj, plt, path, rgbColor)
+            if nargin < 4 % default value
+                rgbColor = [rand(), rand(), rand()];
+            end
+            highlight(plt, path.nodes, 'EdgeColor',rgbColor);
         end
     end
 end
