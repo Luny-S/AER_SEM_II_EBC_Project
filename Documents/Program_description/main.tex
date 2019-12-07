@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{float}
+\title{
+\pagestyle{plain}
+\begin{figure}[h]
+\centering
+\vspace{-30mm}\includegraphics[width=2.5in]{logo}
+\end{figure}
+\vspace{20mm}Event based control \\ Project report
+}
+\author{%
+ \begin{tabular}{ll}
+ \textbf{Biernat} Damian& 226 309 \tabularnewline
+ \textbf{Brzozowy} Martin& 226 339 \tabularnewline
+ \textbf{Maliszewski} Marcin& 227 347 \tabularnewline
+ \textbf{Mróz} Sebastian& 218 559 \tabularnewline
+ \textbf{Sil} Aleksander& 218 576
+ \end{tabular}}
+\date{\vspace{\fill}October 2019}
+
+\begin{document}
+\clearpage\maketitle
+\thispagestyle{empty}
+
+\newpage
+
+
+
+\section{Program description}
+
+\subsection{Main loop}
+
+In the main loop there are 3 main parts:
+\begin{description}
+\item[Request making] The robots ask for a permission to move along their path or ask for a new path/task
+\item[Request evaluation] The main controller gets the requests, evaluate them and make responses
+\item[Robots action] Robots act according to the response
+\end{description}
+
+
+\end{document}
