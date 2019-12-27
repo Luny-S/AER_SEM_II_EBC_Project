@@ -4,8 +4,11 @@ classdef AgvRobot < handle
     
     properties
         id,
-        node,
-        path
+        current_node,
+        node, % or used last elem in path
+        path,
+        action, % MOVE or STOP
+        status
     end
     
     methods
