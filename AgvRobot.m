@@ -8,6 +8,7 @@ classdef AgvRobot < handle
         node, % or used last elem in path
         path,
         action, % MOVE or STOP
+        priority_move,
         status
     end
     
@@ -17,6 +18,8 @@ classdef AgvRobot < handle
             %   Detailed explanation goes here
             obj.id = num2str(id,'AGV_%03.f');
             obj.node = initState;
+            obj.status ="WAIT_FOR_TASK";
+            obj.priority_move = 0;
             obj.path = [];
         end
         
@@ -31,6 +34,25 @@ classdef AgvRobot < handle
             end
             
         end
+        
+        function action = executeAction(obj,act, path)
+            if isempty(obj.path)
+                obj.path = path;
+            end
+            if strcmp(act,'MOVE')
+                obj.current_node = obj.path(1);
+                obj.path(1) = [];
+            end
+        end
+        
+        function status = getStatus(obj)
+            if isempty(obj.path) == 0
+                obj.status = "WAIT_FOR_TASK";
+            else
+                obj.status = "WAIT_FOR_PERMISSION_MOVE";             
+            end
+        end
+
     end
 end
 
