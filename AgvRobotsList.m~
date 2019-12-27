@@ -23,5 +23,9 @@ classdef AgvRobotsList < handle
         end
        
     end
+            function obj = getAgvName(id)
+           varname =  matlab.lang.makeValidName(strcat(num2str(id,'AGV_%03.f')))
+           return varname
+        end
 end
 

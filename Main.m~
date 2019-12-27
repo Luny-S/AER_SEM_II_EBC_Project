@@ -26,14 +26,11 @@ task.endingNode = 'SH1';
 %% Task assignment test
 %controller.assignPath(agvRobotsList.agvRobots.AGV_001, task);
 
-%% %for iteration = 1 : 1 : programSteps
+%%
+Varnames = matlab.lang.makeValidName(strcat(num2str(2,'AGV_%03.f')))
+ %for iteration = 1 : 1 : programSteps
      for iter = 1:numberOfRobots
-         agv_name = matlab.lang.makeValidName(strcat(num2str(iter,'AGV_%03.f')));
-         %TODO put it to MasterController
-        if strcmp(agvRobotsList.agvRobots.(agv_name).status,'WAIT_FOR_TASK')
-            controller.assignPath(agvRobotsList.agvRobots.(agv_name), task);
-        end
-              
+         agvRobotsList.agvRobots
      end
      
     % robots asks for permissions or new path
