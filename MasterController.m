@@ -23,7 +23,9 @@ classdef MasterController < handle
 
             stateList = readtable('./Tables/StateList.csv');
             nodeNames = table2array(stateList(:,1));
-            obj.mapGraph = digraph(nodeA, nodeB, weights, nodeNames); 
+            occupancyGrid = table2array(stateList(:,3));
+            obj.mapGraph = digraph(nodeA, nodeB, weights, nodeNames);
+            obj.mapGraph.Nodes.occupancyGrid = occupancyGrid;            
         end
         
         function out = addAgvRobot(obj,agvRobot)
@@ -42,7 +44,8 @@ classdef MasterController < handle
             
             % Modify path edges weight by +1
             obj.mapGraph.Edges.Weight(path.edges) = obj.mapGraph.Edges.Weight(path.edges) + 1;
-                        
+            
+            agvRobot.status = 'WAIT_FOR_PERMISSION_MOVE';
             agvRobot.path = path;
         end
         
@@ -59,6 +62,24 @@ classdef MasterController < handle
             end
             highlight(plt, path.nodes, 'EdgeColor',rgbColor);
         end
+        
+        function action = getAction(obj,agvRobot)
+            new_node_id = strcmp(obj.mapGraph.Nodes.Name, agvRobot.path.nodes(1));
+            if obj.mapGraph.Nodes.occupancyGrid(new_node_id) == 1
+                action = 'STOP';
+            else
+                action = 'MOVE';
+            end
+        end
+        
+           function updateOcuppancyGrid(obj,current_pose, last_pose)
+               if not(strcmp(current_pose, last_pose)) 
+                    current_node_id = strcmp(obj.mapGraph.Nodes.Name, current_pose);
+                    last_node_id = strcmp(obj.mapGraph.Nodes.Name, last_pose);
+                    obj.mapGraph.Nodes.occupancyGrid(current_node_id) = 1;
+                    obj.mapGraph.Nodes.occupancyGrid(last_node_id) = 0;
+               end
+           end         
     end
 end
 
