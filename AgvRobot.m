@@ -18,7 +18,8 @@ classdef AgvRobot < handle
             %   Detailed explanation goes here
             obj.id = num2str(id,'AGV_%03.f');
             obj.node = initState;
-            obj.status ="WAIT_FOR_TASK";
+            obj.status ='WAIT_FOR_TASK';
+            obj.action ='STOP';
             obj.priority_move = 0;
             obj.path = [];
         end
@@ -35,23 +36,18 @@ classdef AgvRobot < handle
             
         end
         
-        function action = executeAction(obj,act, path)
-            if isempty(obj.path)
-                obj.path = path;
-            end
-            if strcmp(act,'MOVE')
-                obj.current_node = obj.path(1);
-                obj.path(1) = [];
+        function  executeAction(obj,action)
+            if strcmp(action,'MOVE')
+                obj.path.nodes(1) = [];
+                obj.priority_move = 0;
+                obj.current_node = obj.path.nodes(1);
+            elseif strcmp(action, 'STOP')
+                obj.priority_move =+ 1;
             end
         end
         
-        function status = getStatus(obj)
-            if isempty(obj.path) == 0
-                obj.status = "WAIT_FOR_TASK";
-            else
-                obj.status = "WAIT_FOR_PERMISSION_MOVE";             
-            end
-        end
+         
+
 
     end
 end
