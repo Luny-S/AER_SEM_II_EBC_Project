@@ -43,12 +43,10 @@ classdef AgvRobot < handle
                 obj.current_node = obj.path.nodes(1);
             elseif strcmp(action, 'STOP')
                 obj.priority_move =+ 1;
+            elseif strcmp(action, 'UNLOADING')
+                obj.status = 'WAIT_FOR_TASK';
             end
         end
-        
-         
-
-
     end
 end
 

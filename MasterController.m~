@@ -44,7 +44,7 @@ classdef MasterController < handle
             
             % Modify path edges weight by +1
             obj.mapGraph.Edges.Weight(path.edges) = obj.mapGraph.Edges.Weight(path.edges) + 1;
-            agvRobot.current_node = path.nodes(1)
+            
             agvRobot.status = 'WAIT_FOR_PERMISSION_MOVE';
             agvRobot.path = path;
         end
@@ -70,7 +70,7 @@ classdef MasterController < handle
             else
                 action = 'MOVE';
             end
-            if (length(agvRobot.path.nodes)==1) && (strcmp(agvRobot.path.nodes(1), agvRobot.current_node)) 
+            if (strcmp(agvRobot.path.nodes(1), agvRobot.current_node)) && ()
                 action = 'UNLOADING';
             end
         end
