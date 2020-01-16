@@ -70,8 +70,8 @@ classdef MasterController < handle
             else
                 action = 'MOVE';
             end
-            if (length(agvRobot.path.nodes)==1) && (strcmp(agvRobot.path.nodes(1), agvRobot.current_node)) 
-                action = 'UNLOADING';
+            if (length(agvRobot.path.nodes)==1) && (strcmp(agvRobot.path.nodes(1), agvRobot.current_node) && agvRobot.has_product) 
+                action = 'UNLOAD';
             end
         end
         

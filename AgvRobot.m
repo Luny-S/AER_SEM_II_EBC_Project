@@ -9,6 +9,7 @@ classdef AgvRobot < handle
         path,
         action, % MOVE or STOP
         priority_move,
+        has_product,
         status
     end
     
@@ -21,6 +22,7 @@ classdef AgvRobot < handle
             obj.status ='WAIT_FOR_TASK';
             obj.action ='STOP';
             obj.priority_move = 0;
+            obj.has_product = 0;
             obj.path = [];
         end
         
@@ -43,8 +45,9 @@ classdef AgvRobot < handle
                 obj.current_node = obj.path.nodes(1);
             elseif strcmp(action, 'STOP')
                 obj.priority_move =+ 1;
-            elseif strcmp(action, 'UNLOADING')
+            elseif strcmp(action, 'UNLOAD')
                 obj.status = 'WAIT_FOR_TASK';
+                obj.has_product = false;
             end
         end
     end
