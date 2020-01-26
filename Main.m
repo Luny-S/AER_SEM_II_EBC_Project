@@ -31,12 +31,12 @@ task = struct();
 ship_1 = struct();
 ship_1.cargo.types = 'C';
 ship_1.cargo.dock = 'SH1';
-ship_1.cargo.quantity =4;
+ship_1.cargo.quantity =3;
 ship_1.cargo.reserved = 0;
 ship_2 = struct();
 ship_2.cargo.types = 'A';
 ship_2.cargo.dock = 'SH2';
-ship_2.cargo.quantity =1;
+ship_2.cargo.quantity =2;
 ship_2.cargo.reserved = 0;
 ship_3 = struct();
 ship_3.cargo.types = 'B';
@@ -60,11 +60,16 @@ while ~system_status
          robot = agvRobotsList.agvRobots.(agv_name);
          quantity_high = 0;
          ship_id = -1;
-       %  fprintf("%s status: %s. \n", agv_name ,robot.status)
+         %fprintf("%s status: %s. \n", agv_name ,robot.status)
         if strcmp(robot.status,'WAIT_FOR_TASK')
                 for i = 1: length(ships)
-                    if quantity_high < (ships(i).cargo.quantity - ships(i).cargo.reserved)
-                        quantity_high = ships(i).cargo.quantity - ships(i).cargo.reserved;
+                   if  ((ships(i).cargo.quantity - ships(i).cargo.reserved) > 0 )
+                       quantity = ships(i).cargo.quantity - ships(i).cargo.reserved;
+                   else
+                       quantity = ships(i).cargo.quantity; 
+                   end
+                    if quantity_high < quantity
+                        quantity_high = quantity;
                         task.startingNode = robot.current_node;
                         task.endingNode =  ships(i).cargo.dock;
                         ship_id = i;
@@ -78,7 +83,7 @@ while ~system_status
                                 quantity_high = ships(i).cargo.quantity;
                                 index = find(storage.cargo.types == ships(i).cargo.types);
                                 task.endingNode = num2str(index,'ST%i') ;
-                                ships(i).cargo.quantity =- 1;
+                                ships(i).cargo.quantity = ships(i).cargo.quantity- 1;
                                 ships(i).cargo.reserved = ships(i).cargo.reserved - 1;
                                 ship_id = -1;
                             end
@@ -88,31 +93,26 @@ while ~system_status
                 if ship_id ~= -1
                     ships(ship_id).cargo.reserved = ships(ship_id).cargo.reserved + 1
                 end
-                if quantity_high <= 0 && ~strcmp(robot.current_node, 'B')
-                    task.startingNode = robot.current_node;
-                     task.endingNode =  'B';
+            if quantity_high <= 0 
+                if  ~strcmp(robot.current_node, 'B')
+                 task.startingNode = robot.current_node;
+                 task.endingNode =  'B';
+                else
+                    robots_in_base = robots_in_base + 1;
+                    continue;
                 end
+            end
            controller.assignPath(robot, task);
         end
         agvRobotsList.agvRobots.(agv_name) = robot;
         action = controller.getAction(robot);
+        fprintf("%s action: %s , status: %s. \n", agv_name ,action, robot.status)
+
         agvRobotsList.agvRobots.(agv_name).executeAction(action);
         controller.updateOcuppancyGrid(robot.current_node,agvRobotsList.agvRobots.(agv_name).current_node);
         if strcmp(action, 'UNLOAD')
             id_num = str2double(extractAfter(robot.current_node(1),'ST'));
             storage.cargo.quantity(id_num) = storage.cargo.quantity(id_num) +1;
-        end
-        suma = sum(storage.cargo.quantity, 'all');
-        
-        for i = 1: length(ships)
-            suma = suma + ships(i).cargo.reserved;
-        end
-        if ship_quantity_all == suma
-            ships_unloaded = true;
-        end
-        
-        if strcmp(agvRobotsList.agvRobots.(agv_name).current_node, 'B') && ships_unloaded
-            robots_in_base = robots_in_base + 1;
         end
         
         % HERE ONE STEP FOR ONE ROBOT POSE IS UPDATEDED
@@ -120,6 +120,7 @@ while ~system_status
         [fig, plt] = controller.plotGraph(fig);
         controller.highlightPath(plt,agvRobotsList.agvRobots.(agv_name).path);
      end
+     pause(0.2)  %
         % HERE  ONE STEP FOR ALL ROBOT POSE IS UPDATEDED
 
      if (robots_in_base == numberOfRobots)
@@ -128,11 +129,10 @@ while ~system_status
      robots_in_base = 0;
 end
 
-for i = 1: length(ships)
-   disp( ships(i).cargo.quantity);
+for iter = 1:numberOfRobots
+ agv_name = (num2str(iter,'AGV_%03.f'));
+ disp(agvRobotsList.agvRobots.(agv_name).current_node);
 end
 disp(storage.cargo.quantity)
-%for iter = 1:numberOfRobots
-%         agv_name = (num2str(iter,'AGV_%03.f'));
-%         disp(agvRobotsList.agvRobots.(agv_name).current_node);
-%end
+
+
