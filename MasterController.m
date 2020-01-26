@@ -44,7 +44,7 @@ classdef MasterController < handle
             
             % Modify path edges weight by +1
             obj.mapGraph.Edges.Weight(path.edges) = obj.mapGraph.Edges.Weight(path.edges) + 1;
-            agvRobot.current_node = path.nodes(1)
+            agvRobot.current_node = path.nodes(1);
             agvRobot.status = 'WAIT_FOR_PERMISSION_MOVE';
             agvRobot.path = path;
         end
@@ -70,16 +70,19 @@ classdef MasterController < handle
             else
                 action = 'MOVE';
             end
-            if (length(agvRobot.path.nodes)==1) && (strcmp(agvRobot.path.nodes(1), agvRobot.current_node) && agvRobot.has_product) 
-                action = 'UNLOAD';
+            if (any(strcmp({'SH1','SH2','SH3'},agvRobot.current_node)) && ~agvRobot.has_product)
+                action = 'LOAD';
+            elseif (any(strcmp({'ST1','ST2','ST3'},agvRobot.current_node)) && agvRobot.has_product)
+                 action = 'UNLOAD';
             end
         end
-        
            function updateOcuppancyGrid(obj,current_pose, last_pose)
                if not(strcmp(current_pose, last_pose)) 
                     current_node_id = strcmp(obj.mapGraph.Nodes.Name, current_pose);
                     last_node_id = strcmp(obj.mapGraph.Nodes.Name, last_pose);
-                    obj.mapGraph.Nodes.occupancyGrid(current_node_id) = 1;
+                    if (~any(strcmp(current_node_id, {'SH1','SH2','SH3','B'})))
+                        obj.mapGraph.Nodes.occupancyGrid(current_node_id) = 1;
+                    end
                     obj.mapGraph.Nodes.occupancyGrid(last_node_id) = 0;
                end
            end         

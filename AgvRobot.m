@@ -23,6 +23,7 @@ classdef AgvRobot < handle
             obj.action ='STOP';
             obj.priority_move = 0;
             obj.has_product = 0;
+            obj.current_node = 'B';
             obj.path = [];
         end
         
@@ -38,16 +39,25 @@ classdef AgvRobot < handle
             
         end
         
-        function  executeAction(obj,action)
+        function  executeAction(obj,action)    
             if strcmp(action,'MOVE')
-                obj.path.nodes(1) = [];
-                obj.priority_move = 0;
-                obj.current_node = obj.path.nodes(1);
+                if (length(obj.path.nodes) > 1)
+                    obj.path.nodes(1) = [];
+                    obj.priority_move = 0;
+                    obj.current_node = obj.path.nodes(1);
+                elseif ((length(obj.path.nodes)) == 1)
+                    obj.current_node = obj.path.nodes(1)
+                    obj.path.nodes(1) = [];
+                    obj.status ='WAIT_FOR_TASK';
+                end
             elseif strcmp(action, 'STOP')
                 obj.priority_move =+ 1;
             elseif strcmp(action, 'UNLOAD')
                 obj.status = 'WAIT_FOR_TASK';
                 obj.has_product = false;
+             elseif strcmp(action, 'LOAD')
+                obj.status = 'WAIT_FOR_TASK';
+                obj.has_product = true;
             end
         end
     end
