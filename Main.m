@@ -140,6 +140,9 @@ while ~system_status
      file = dir(dataFileName);
      if ~isempty(file) && ~file.isdir  % File is existing:
         data = readJsonFile(dataFileName);
+        if length(data.steps) > stepNumber
+            data.steps = [];
+        end
      else                              % File is missing:
         data = struct();
         data.steps = [];        
