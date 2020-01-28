@@ -1,0 +1,47 @@
+{
+    "steps":[
+        {
+            "number": 1,
+            "robots": [
+                {
+                    "id": 1,
+                    "location": "C1",
+                    "path": ["C2","C3"]
+                },
+                {
+                    "id": 2,
+                    "location": "C2",
+                    "path": ["C3"]
+                }
+            ]    
+        },{
+            "number": 2,
+            "robots": [
+                {
+                    "id": 1,
+                    "location": "C2",
+                    "path": ["C3"]
+                },
+                {
+                    "id": 2,
+                    "location": "C3",
+                    "path": []
+                }
+            ]    
+        },{
+            "number": 3,
+            "robots": [
+                {
+                    "id": 1,
+                    "location": "C2",
+                    "path": ["C3"]
+                },
+                {
+                    "id": 2,
+                    "location": "C3",
+                    "path": []
+                }
+            ]    
+        }
+    ]
+}

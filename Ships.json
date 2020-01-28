@@ -1,0 +1,26 @@
+[
+  {
+    "cargo": {
+      "types": "C",
+      "dock": "SH1",
+      "quantity": 3,
+      "reserved": 0
+    }
+  },
+  {
+    "cargo": {
+      "types": "A",
+      "dock": "SH2",
+      "quantity": 2,
+      "reserved": 0
+    }
+  },
+  {
+    "cargo": {
+      "types": "B",
+      "dock": "SH3",
+      "quantity": 2,
+      "reserved": 0
+    }
+  }
+]

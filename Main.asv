@@ -28,10 +28,13 @@ task = struct();
 %task.endingNode = 'SH1';
 
 %Simplified ship and storage
-
 shipsDefinitionFile = "Ships.json";
-ships = readJsonFile(shipsDefinitionFile);
-
+fid = fopen(shipsDefinitionFile);
+rawData = fread(fid, inf);
+fclose(fid);
+str = char(rawData');
+ships = jsondecode(str);
+clear str fid rawData;
 
 ship_quantity_all = 0;
 for i = 1: length(ships)
@@ -45,19 +48,12 @@ fig = figure();
 
 stepNumber = 1;
 while ~system_status
-    
-    step = struct();
-    step.number = stepNumber;
-    step.robots = [];
      for iter = 1:numberOfRobots
          agv_name = (num2str(iter,'AGV_%03.f'));
          robot = agvRobotsList.agvRobots.(agv_name);
          quantity_high = 0;
          ship_id = -1;
          %fprintf("%s status: %s. \n", agv_name ,robot.status)
-         
-         
-         
         if strcmp(robot.status,'WAIT_FOR_TASK')
                 for i = 1: length(ships)
                    if  ((ships(i).cargo.quantity - ships(i).cargo.reserved) > 0 )
@@ -113,41 +109,26 @@ while ~system_status
         end
         
         % HERE ONE STEP FOR ONE ROBOT POSE IS UPDATEDED
-        % Step data for JSON write function
-        robotData = struct();
-        % Works because at the beginning of loop we get robot by
-        % transforming iter to form AGV_%03.f
-        robotData.id = iter;
-        robotData.location = char(robot.current_node);
-        robotData.path = [];
-
-        pathData = char(robot.path.nodes);
-        pathSize = size(robot.path.nodes);
-        for i = 1:pathSize(2)
-           robotData.path =  [robotData.path, find(controller.mapGraph.Nodes.Name == string(strtrim(pathData(i,:))))];
-        end
-        step.robots = [step.robots, robotData];
-         
+          
         [fig, plt] = controller.plotGraph(fig);
         controller.highlightPath(plt,agvRobotsList.agvRobots.(agv_name).path);
      end
      pause(0.2)  %
         % HERE  ONE STEP FOR ALL ROBOT POSE IS UPDATEDED
         
-        
      %% Open JSON file and save
      dataFileName = "symulacja.json";
      file = dir(dataFileName);
      if ~isempty(file) && ~file.isdir  % File is existing:
-        data = readJsonFile(dataFileName);
+        edit(dataFileName);
      else                              % File is missing:
-        data = struct();
-        data.steps = [];        
-     end
-     %%
-     data.steps = [data.steps; step];
-     writeJsonFile(dataFileName, data);
-     %%
+        fid = fopen(dataFileName, 'w');
+        if fid == -1
+            error('Cannot create a file here: %s', cd);
+        end
+        edit(dataFileName);
+        delete(dataFileName);
+      end
     %%
      stepNumber = stepNumber + 1;
 
