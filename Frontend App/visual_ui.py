@@ -9,17 +9,77 @@
 
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QGridLayout, QFileDialog)
+from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5.QtGui import QScreen
+from PyQt5.QtCore import Qt, QTimer
 import json
 from collections import deque
+StateList = {
+1:"B",
+2:"SH1",
+3:"SH2",
+4:"SH3",
+5:"ST1",
+6:"ST2",
+7:"ST3",
+8:"C1",
+9:"C2",
+10:"C3",
+11:"C4",
+12:"C5",
+13:"C6",
+14:"C7",
+15:"C8",
+16:"C9",
+17:"C2C1",
+18:"C1C2",
+19:"C3C2",
+20:"C2C3",
+21:"C1C4",
+22:"C4C1",
+23:"C2C5",
+24:"C5C2",
+25:"C3C6",
+26:"C6C3",
+27:"C5C4",
+28:"C4C5",
+29:"C6C5",
+30:"C5C6",
+31:"BC6",
+32:"C6B",
+33:"C4C7",
+34:"C7C4",
+35:"C5C8",
+36:"C8C5",
+37:"C6C9",
+38:"C9C6",
+39:"C8C7",
+40:"C7C8",
+41:"C9C8",
+42:"C8C9"
+}
 
-colors = ["blue",
-"green",
-"red",
-"cyan",
+colors = ["rgb(0, 0, 204)",
+"rgb(0, 102, 0)",
+"rgb(102, 0, 0)",
+"rgb(0, 255, 255)",
 "magenta",
 "yellow",
 "black",
 "white"]
+
+head_colors = [
+    "rgb(0, 0, 102)",
+    "rgb(0, 204, 0)",
+    "rgb(205, 0, 0)",
+    "rgb(0, 204, 255)",
+    "",
+    "",
+    "",
+
+
+]
 
 time = 0
 
@@ -42,17 +102,44 @@ class Ui_MainWindow(object):
             symulacja = json.load(plik_z_symulacja)
 
         for step in symulacja['steps']:
-            if step['number'] == time:
-                for robot in step['robots']:
-                    robot_path = deque([robot['location'],''])
-                    eval("self.label_"+robot['location']+".setStyleSheet(\"background-color: "+colors[robot['id']]+";\")")
-                    for path in robot['path']:
-                        robot_path.pop()
-                        robot_path.appendleft(path)
-                        # ui.line_PathC3C2.setStyleSheet("background-color: green;")
-                        command="self.line_Path"+robot_path[0]+robot_path[1]+".setStyleSheet(\"background-color: "+colors[robot['id']]+";\")"
-                        eval(command)
-                print("[INFO] Prepared window for step: " + str(time))   
+            try:
+                if step['number'] == time:
+                    for robot in step['robots']:
+                        print(robot['id'],robot['path'])
+                        try: 
+                            print(len(robot['path']))
+                            if (len(robot['path']) > 0):
+                                if(len(robot['path']) > 1):
+                                    for path in robot['path']:
+                                        # ui.line_PathC3C2.setStyleSheet("background-color: green;")
+                                        if( path <= 16 ):
+                                            command="self.label_"+StateList[path]+".setStyleSheet(\"background-color: "+colors[robot['id']-1]+";\")"
+                                        else:
+                                            command="self.line_Path"+StateList[path]+".setStyleSheet(\"background-color: "+colors[robot['id']-1]+";\")"
+                                        print("[INFO] Evaluating command " + command)
+                                        eval(command)
+                                        print("[INFO] Evaluated command " + command + "sucessfully")
+                                elif (len(robot['path']) == 1):
+                                    path = robot['path']
+                                    if( path <= 16 ):
+                                        command="self.label_"+StateList[path]+".setStyleSheet(\"background-color: "+colors[robot['id']-1]+";\")"
+                                    else:
+                                        command="self.line_Path"+StateList[path]+".setStyleSheet(\"background-color: "+colors[robot['id']-1]+";\")"
+                                    print("[INFO] Evaluating command " + command)
+                                    eval(command)
+                                    print("[INFO] Evaluated command " + command + "sucessfully")
+                            else:
+                                pass
+                            command = "self.label_"+robot['location']+".setStyleSheet(\"background-color: "+head_colors[robot['id']-1]+";\")"
+                            print("[INFO] Evaluating command " + command)
+                            eval(command)
+                            print("[INFO] Evaluated command " + command + "sucessfully")
+                        except: 
+                            print("[ERR] ERR in evaluating robot paths")   
+                            input("Press Enter to continue...")
+            except:
+                print("Skipped step: " + step['number'])
+                pass
 
     def tick(self):
         global time
@@ -63,13 +150,15 @@ class Ui_MainWindow(object):
             print("[INFO] Displayed window for step: " + str(time))
         except:
             pass
+        img =  QApplication.primaryScreen().grabWindow(0)
+        img.save(str(time)+".png")
         time += 1   
 
 
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1040, 827)
+        MainWindow.resize(1920, 1080)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.line_PathC5C4 = QtWidgets.QFrame(self.centralwidget)
@@ -169,42 +258,42 @@ class Ui_MainWindow(object):
         self.line_PathBC6.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_PathBC6.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_PathBC6.setObjectName("line_PathBC6")
-        self.label_Ship1 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Ship1.setGeometry(QtCore.QRect(170, 90, 61, 31))
+        self.label_SH1 = QtWidgets.QLabel(self.centralwidget)
+        self.label_SH1.setGeometry(QtCore.QRect(170, 90, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Ship1.setFont(font)
-        self.label_Ship1.setObjectName("label_Ship1")
-        self.label_Ship2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Ship2.setGeometry(QtCore.QRect(410, 90, 61, 31))
+        self.label_SH1.setFont(font)
+        self.label_SH1.setObjectName("label_SH1")
+        self.label_SH2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_SH2.setGeometry(QtCore.QRect(410, 90, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Ship2.setFont(font)
-        self.label_Ship2.setObjectName("label_Ship2")
-        self.label_Ship3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Ship3.setGeometry(QtCore.QRect(640, 90, 61, 31))
+        self.label_SH2.setFont(font)
+        self.label_SH2.setObjectName("label_SH2")
+        self.label_SH3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_SH3.setGeometry(QtCore.QRect(640, 90, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Ship3.setFont(font)
-        self.label_Ship3.setObjectName("label_Ship3")
-        self.label_Storage1 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Storage1.setGeometry(QtCore.QRect(160, 630, 101, 31))
+        self.label_SH3.setFont(font)
+        self.label_SH3.setObjectName("label_SH3")
+        self.label_ST1 = QtWidgets.QLabel(self.centralwidget)
+        self.label_ST1.setGeometry(QtCore.QRect(160, 630, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Storage1.setFont(font)
-        self.label_Storage1.setObjectName("label_Storage1")
-        self.label_Storage2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Storage2.setGeometry(QtCore.QRect(400, 630, 101, 31))
+        self.label_ST1.setFont(font)
+        self.label_ST1.setObjectName("label_ST1")
+        self.label_ST2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_ST2.setGeometry(QtCore.QRect(400, 630, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Storage2.setFont(font)
-        self.label_Storage2.setObjectName("label_Storage2")
-        self.label_Storage3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_Storage3.setGeometry(QtCore.QRect(630, 630, 101, 31))
+        self.label_ST2.setFont(font)
+        self.label_ST2.setObjectName("label_ST2")
+        self.label_ST3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_ST3.setGeometry(QtCore.QRect(630, 630, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Storage3.setFont(font)
-        self.label_Storage3.setObjectName("label_Storage3")
+        self.label_ST3.setFont(font)
+        self.label_ST3.setObjectName("label_ST3")
         self.label_C1 = QtWidgets.QLabel(self.centralwidget)
         self.label_C1.setGeometry(QtCore.QRect(190, 140, 31, 31))
         font = QtGui.QFont()
@@ -259,12 +348,12 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.label_C9.setFont(font)
         self.label_C9.setObjectName("label_C9")
-        self.label_Base = QtWidgets.QLabel(self.centralwidget)
-        self.label_Base.setGeometry(QtCore.QRect(920, 360, 61, 31))
+        self.label_B = QtWidgets.QLabel(self.centralwidget)
+        self.label_B.setGeometry(QtCore.QRect(920, 360, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.label_Base.setFont(font)
-        self.label_Base.setObjectName("label_Base")
+        self.label_B.setFont(font)
+        self.label_B.setObjectName("label_B")
 
 
         self.line_PathC2C1 = QtWidgets.QFrame(self.centralwidget)
@@ -399,12 +488,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_Ship1.setText(_translate("MainWindow", "Ship 1 "))
-        self.label_Ship2.setText(_translate("MainWindow", "Ship 2"))
-        self.label_Ship3.setText(_translate("MainWindow", "Ship 3 "))
-        self.label_Storage1.setText(_translate("MainWindow", "Storage 1 "))
-        self.label_Storage2.setText(_translate("MainWindow", "Storage 2"))
-        self.label_Storage3.setText(_translate("MainWindow", "Storage 3"))
+        self.label_SH1.setText(_translate("MainWindow", "SH 1 "))
+        self.label_SH2.setText(_translate("MainWindow", "SH 2"))
+        self.label_SH3.setText(_translate("MainWindow", "SH 3 "))
+        self.label_ST1.setText(_translate("MainWindow", "ST 1 "))
+        self.label_ST2.setText(_translate("MainWindow", "ST 2"))
+        self.label_ST3.setText(_translate("MainWindow", "ST 3"))
         self.label_C1.setText(_translate("MainWindow", "C1"))
         self.label_C2.setText(_translate("MainWindow", "C2"))
         self.label_C3.setText(_translate("MainWindow", "C3"))
@@ -414,7 +503,7 @@ class Ui_MainWindow(object):
         self.label_C7.setText(_translate("MainWindow", "C7"))
         self.label_C8.setText(_translate("MainWindow", "C8"))
         self.label_C9.setText(_translate("MainWindow", "C9"))
-        self.label_Base.setText(_translate("MainWindow", "Base"))
+        self.label_B.setText(_translate("MainWindow", "B"))
         self.label_PathC1C2.setText(_translate("MainWindow", "Path C1C2"))
         self.label_PathC2C1.setText(_translate("MainWindow", "Path C2C1"))
         self.label_PathC3C2.setText(_translate("MainWindow", "Path C3C2"))
@@ -448,5 +537,5 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     # ui.line_PathC3C2.setStyleSheet("background-color: green;")
-    MainWindow.show()
+    MainWindow.showMaximized()
     sys.exit(app.exec_())
